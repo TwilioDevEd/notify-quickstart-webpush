@@ -1,0 +1,85 @@
+<html>
+    <link rel="manifest" href="/manifest.json"/>
+
+    <head>
+        <script src="https://www.gstatic.com/firebasejs/4.8.0/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/4.8.0/firebase-messaging.js"></script>
+        <script src="notify_actions.js"></script>
+        <title>Notify Firebase Cloud Notifications</title>
+    </head>
+
+    <body>
+        <h1>Quick Start Notify</h1>
+        <a href="https://firebase.google.com/docs/cloud-messaging/js/client">More details how to set up Firebase web push</a>
+
+        <h2>Create Binding</h2>
+        
+        <form id="binding_form">
+        Identity: <input type="text" name="identity_field"><br>
+        Address: <input type="text" name="address_field" size="200" value="<device token>"> <br>
+        <input type="button" onclick="createBinding()" value="Create Binding">
+        </form>
+
+        <script>
+            // firebase sample code snippets from https://firebase.google.com/docs/cloud-messaging/js/client
+            // Initialize Firebase
+            var config = {
+                apiKey: '<ENTER FIREBASE WEB API KEY HERE>',
+                messagingSenderId: '<ENTER FIREBASE SENDER ID HERE>'
+            };
+            firebase.initializeApp(config);
+
+            // Retrieve Firebase Messaging object.
+            const messaging = firebase.messaging();
+
+            messaging.requestPermission()
+                    .then(function() {
+                        console.log('Notification permission granted.');
+                    })
+                    .catch(function(err) {
+                        console.log('Unable to get permission to notify.', err);
+                    });
+
+            // Get Instance ID token. Initially this makes a network call, once retrieved
+            // subsequent calls to getToken will return from cache.
+            messaging.getToken()
+                    .then(function(currentToken) {
+                        if (currentToken) {
+                            console.log('Token received: ', currentToken);
+                            document.forms["binding_form"]["address_field"].value = currentToken;
+                        } else {
+                            var errMsg = 'No Instance ID token available. Request permission to generate one.';
+                            alert(errMsg);
+                            document.forms["binding_form"]["address_field"].value = errMsg;
+                        }
+                    })
+                    .catch(function(err) {
+                        console.log('An error occurred while retrieving token. ', err);
+                    });
+
+            messaging.onMessage(function(payload) {
+                console.log('Message received. ', payload);
+                alert(payload.data.twi_body);
+            });
+
+            function createBinding(){
+                var identity = document.forms["binding_form"]["identity_field"].value;
+                if (identity == "") {
+                    alert('Identity must be specified');
+                    return false;
+                }
+
+                var address = document.forms["binding_form"]["address_field"].value;
+                if (address == "") {
+                    alert('Address must be specified');
+                    return false;
+                }
+
+                register(identity, address);
+            }
+
+        </script>
+
+    </body>
+
+</html>
