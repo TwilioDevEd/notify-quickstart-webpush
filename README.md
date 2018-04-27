@@ -73,4 +73,4 @@ and send a notification to the identity you registered as to receive a push noti
 
 ## License
 
-MIT
+* MIT
